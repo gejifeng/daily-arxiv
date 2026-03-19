@@ -124,3 +124,19 @@ def get_data_path(config: Dict[str, Any], subdir: str = 'papers') -> str:
         return 'data/summaries'
     
     return base_path
+
+
+def get_language(config: Dict[str, Any]) -> str:
+    """Get deployment language.
+
+    Returns:
+        'en' for English mode, otherwise 'zh'
+    """
+    app_config = config.get('app', {}) if isinstance(config, dict) else {}
+    language = str(app_config.get('language', 'zh')).strip().lower()
+    return 'en' if language.startswith('en') else 'zh'
+
+
+def pick_text(config: Dict[str, Any], zh_text: str, en_text: str) -> str:
+    """Pick localized text using deployment language."""
+    return en_text if get_language(config) == 'en' else zh_text

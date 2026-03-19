@@ -1,52 +1,79 @@
 # Daily arXiv 部署说明
 
-本目录包含将 Daily arXiv 配置为 Linux 系统服务的脚本和配置文件。
+本目录包含 Linux systemd 部署脚本与模板。
 
 ## 📂 文件说明
 
-- `daily-arxiv-scheduler.service`: 调度器服务的 systemd 配置文件，负责定时运行任务。
-- `daily-arxiv-web.service`: Web 服务的 systemd 配置文件，负责提供网页界面。
-- `start_with_exist_conda_env.sh`: **一键部署脚本**，自动注册服务并启动。
-- `start.sh`: 交互式启动脚本（旧版），用于手动测试运行。
+- `deploy_services.sh`: 一键部署脚本（推荐），支持选择 Conda/venv、扫描已有环境并选择“使用已有”或“创建新环境”、安装依赖、生成本机 service、开机自启。
+- `start.sh`: 本地交互式脚本，支持前台/后台运行调度器、启动时询问是否初始化 Conda/venv、扫描已有环境并选择“使用已有”或“创建新环境”、以及调用 systemd 一键部署（菜单选项 8）。
+- `uninstall_services.sh`: 一键卸载脚本，停止并禁用服务、删除 systemd service 文件、重载 systemd。
+- `daily-arxiv-scheduler.service`: scheduler service 模板示例。
+- `daily-arxiv-web.service`: web service 模板示例。
 
-## 🚀 快速部署
+## 🚀 一键部署（推荐）
 
-前提：确保你已经创建了名为 `daily-arxiv` 的 Conda 环境，并且项目依赖已安装。
-
-直接运行以下命令即可完成部署（开机自启 + 立即启动）：
+运行：
 
 ```bash
-bash deploy/start_with_exist_conda_env.sh
+bash deploy/deploy_services.sh
 ```
 
-脚本会自动执行以下操作：
-1. 将 `.service` 配置文件链接到系统目录。
-2. 刷新 systemd 配置。
-3. 设置服务开机自启。
-4. 立即启动服务。
+脚本会自动完成：
+1. 检查必要命令（`systemctl`、`sudo`、`ss` 等）。
+2. 读取 `config/config.yaml` 中的 `web.port`，并在启动前检查端口占用。
+3. 让你选择环境管理方式：Conda 或 venv。
+4. 扫描已有环境，并让你选择“使用已有环境”或“创建新环境”。
+5. 安装 `requirements.txt`。
+6. 生成适配本机的 `/etc/systemd/system/daily-arxiv-scheduler.service` 与 `/etc/systemd/system/daily-arxiv-web.service`。
+7. `daemon-reload` + `enable --now` 启动服务。
+
+## ⚠️ 异常提示
+
+脚本会在以下场景主动报错并退出：
+- 未安装系统依赖命令（如 `systemctl`、`ss`）。
+- `config/config.yaml` 或 `requirements.txt` 缺失。
+- Web 端口已被占用。
+- Python 环境创建失败，或无法找到可执行文件。
+
+此外，生成的 web service 中含有 `ExecStartPre` 端口占用检查，防止服务重启时无提示失败。
 
 ## 🛠️ 常用管理命令
 
-部署完成后，你可以使用标准的 `systemctl` 命令来管理服务。
+```bash
+# 查看状态
+sudo systemctl status daily-arxiv-scheduler
+sudo systemctl status daily-arxiv-web
 
-| 操作 | 调度器服务 (Scheduler) | Web 服务 (Web App) |
-|------|----------------------|-------------------|
-| **查看状态** | `sudo systemctl status daily-arxiv-scheduler` | `sudo systemctl status daily-arxiv-web` |
-| **停止服务** | `sudo systemctl stop daily-arxiv-scheduler` | `sudo systemctl stop daily-arxiv-web` |
-| **启动服务** | `sudo systemctl start daily-arxiv-scheduler` | `sudo systemctl start daily-arxiv-web` |
-| **重启服务** | `sudo systemctl restart daily-arxiv-scheduler` | `sudo systemctl restart daily-arxiv-web` |
-| **禁用自启** | `sudo systemctl disable daily-arxiv-scheduler` | `sudo systemctl disable daily-arxiv-web` |
+# 重启服务
+sudo systemctl restart daily-arxiv-scheduler
+sudo systemctl restart daily-arxiv-web
+
+# 停止服务
+sudo systemctl stop daily-arxiv-scheduler
+sudo systemctl stop daily-arxiv-web
+
+# 关闭开机自启
+sudo systemctl disable daily-arxiv-scheduler
+sudo systemctl disable daily-arxiv-web
+```
+
+## 🧹 卸载服务
+
+```bash
+bash deploy/uninstall_services.sh
+```
+
+脚本会交互确认后执行：
+- 停止 `daily-arxiv-scheduler` 和 `daily-arxiv-web`
+- 禁用开机自启
+- 删除 `/etc/systemd/system/` 下对应 service 文件
+- `daemon-reload` 并 `reset-failed`
 
 ## 📝 日志查看
 
-服务运行日志会自动保存在项目根目录的 `logs/` 文件夹中。
-
-- **调度器日志**: `logs/scheduler.log` (主要关注这个，查看每日任务执行情况)
-- **Web 服务日志**: `logs/web.log` (Web 访问日志)
-- **错误日志**: `logs/*.error.log`
-
-实时查看日志命令：
 ```bash
-# 查看调度器实时日志
 tail -f logs/scheduler.log
+tail -f logs/web.log
+tail -f logs/scheduler.error.log
+tail -f logs/web.error.log
 ```

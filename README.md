@@ -27,13 +27,18 @@ Automatically track the latest AI research papers on arXiv each day, use LLMs fo
   - TF‑IDF keyword extraction  
   - LDA topic modeling  
   - Word‑cloud visualization  
-  - LLM deep analysis (research hotspots, technology trends, future directions)  
+  - LLM deep analysis (research hotspots, technical trends, future directions, research ideas, analysis summary)  
 
 - 🌐 **Web Interface**: Modern responsive web UI  
   - Built with Bootstrap 5  
   - Real‑time data display  
   - Detailed paper view  
   - Pagination and filtering  
+
+- 🌍 **Complete English Support**: Full English experience across the project  
+  - UI copy is fully available in English  
+  - Logs, prompts, and analysis reports support English output  
+  - Chinese and English documentation are kept synchronized  
 
 - ⏰ **Scheduled Execution**: Various scheduling options  
   - APScheduler (recommended)  
@@ -121,6 +126,10 @@ EMAIL_PASSWORD=your-app-password
 Edit `config/config.yaml`:
 
 ```yaml
+# App language (deployment-level): zh or en
+app:
+  language: "en"
+
 # Research fields
 arxiv:
   categories:
@@ -189,6 +198,33 @@ python src/web/app.py
 python scheduler.py
 ```
 
+`deploy/start.sh` now supports:
+- Prompting for environment setup when launching (you can skip).
+- Environment bootstrap with Conda/venv.
+- Scanning existing environments and letting you choose `use existing` or `create new`.
+- One-click service deployment from the menu (`option 8`).
+
+### 10. Deploy as systemd services (Linux)
+
+```bash
+# One-command deployment:
+# 1) Choose Conda or venv
+# 2) Choose use-existing or create-new environment
+# 3) Install dependencies
+# 4) Auto generate machine-specific services
+# 5) Enable and start services
+bash deploy/deploy_services.sh
+```
+
+The deployment script will fail fast with explicit errors for common issues (for example, occupied web port, missing system commands, or invalid Python environment).
+
+### 11. Uninstall systemd services (Linux)
+
+```bash
+# Stop, disable, remove unit files, and reload systemd
+bash deploy/uninstall_services.sh
+```
+
 Visit http://localhost:5000 to view results.
 
 ## 📂 Project Structure
@@ -224,11 +260,13 @@ daily-arxiv/
 ├── data/                      # Data storage
 │   ├── papers/               # Paper JSON files
 │   ├── summaries/            # Summary JSON files
-│  ──/ # word‑cloud images
+│   └── analysis/             # Analysis results and word-cloud images
 ├── logs/                     # Log files
 ├── deploy/                   # Deployment scripts
-│   ├── start.sh             # Start script
-│   ├── daily-arxiv.service  # Systemd service
+│   ├── start.sh             # Local interactive launcher
+│   ├── deploy_services.sh   # One-click Linux deployment
+│   ├── daily-arxiv-scheduler.service # Scheduler systemd template
+│   ├── daily-arxiv-web.service       # Web systemd template
 │   └── crontab.example      # Cron example
 ├── docs/                     # Documentation
 │   ├── arxiv_fetcher_guide.md
@@ -274,7 +312,9 @@ Supported providers:
   - Support OpenAI, Gemini, Claude, DeepSeek, vLLM  
 - [x] Trend analysis ✅  
   - Keyword extraction, topic modeling, word‑cloud generation  
-  - LLM‑driven deep analysis (hotspots, trends, innovations)  
+  - LLM‑driven deep analysis (hotspots, trends, future directions, research ideas, analysis summary)  
+- [x] Complete English support ✅  
+  - UI copy, logs, prompts, reports, and documentation are fully available in English  
 - [x] Web UI development  
 - [x] Scheduling functionality  
 - [x] Testing & optimization  
@@ -316,6 +356,7 @@ data/
 
 ## 📖 Documentation
 
+- Full English support has been completed and synchronized across docs and interfaces.
 - [Paper Crawler Guide](docs/arxiv_fetcher_guide.md)  
 - [LLM Summarizer Guide](docs/llm_guide.md)  
 - [Configuration Guide](docs/config_guide.md)

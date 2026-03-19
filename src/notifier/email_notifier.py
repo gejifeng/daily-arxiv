@@ -29,6 +29,8 @@ class EmailNotifier:
         self.recipients = config.get('recipients', [])
         self.on_success = config.get('on_success', True)
         self.on_failure = config.get('on_failure', True)
+        self.language = str(config.get('_language', 'zh')).strip().lower()
+        self.text = (lambda zh, en: en) if self.language.startswith('en') else (lambda zh, en: zh)
         
         self.logger = logging.getLogger(__name__)
     
@@ -45,56 +47,62 @@ class EmailNotifier:
         Returns:
             bool: 是否发送成功
         """
-        # 检查是否需要发送
+        # 检查是否需要发送 / Check whether notification is needed
         if success and not self.on_success:
             return True
         if not success and not self.on_failure:
             return True
         
-        # 检查配置
+        # 检查配置 / Validate config
         if not self.sender or not self.recipients:
-            self.logger.warning("邮件发送者或收件人未配置，跳过邮件通知")
+            self.logger.warning(self.text(
+                "邮件发送者或收件人未配置，跳过邮件通知",
+                "Email sender or recipients are not configured, skipping email notification"
+            ))
             return False
         
         if not self.password:
-            self.logger.warning("邮件密码未配置，跳过邮件通知")
+            self.logger.warning(self.text("邮件密码未配置，跳过邮件通知", "Email password is not configured, skipping email notification"))
             return False
         
         try:
-            # 创建邮件
+            # 创建邮件 / Build message
             msg = MIMEMultipart('alternative')
             msg['From'] = self.sender
             msg['To'] = ', '.join(self.recipients)
             msg['Subject'] = self._get_subject(success)
             
-            # 生成邮件内容
+            # 生成邮件内容 / Generate email content
             html_content = self._generate_html_content(success, stats, error_msg, duration)
             text_content = self._generate_text_content(success, stats, error_msg, duration)
             
-            # 添加内容
+            # 添加内容 / Attach content
             msg.attach(MIMEText(text_content, 'plain', 'utf-8'))
             msg.attach(MIMEText(html_content, 'html', 'utf-8'))
             
-            # 发送邮件
+            # 发送邮件 / Send email
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()
                 server.login(self.sender, self.password)
                 server.send_message(msg)
             
-            self.logger.info(f"邮件通知发送成功: {', '.join(self.recipients)}")
+            self.logger.info(self.text(
+                f"邮件通知发送成功: {', '.join(self.recipients)}",
+                f"Email notification sent successfully: {', '.join(self.recipients)}"
+            ))
             return True
             
         except Exception as e:
-            self.logger.error(f"邮件发送失败: {str(e)}", exc_info=True)
+            self.logger.error(self.text(f"邮件发送失败: {str(e)}", f"Failed to send email: {str(e)}"), exc_info=True)
             return False
     
     def _get_subject(self, success):
         """生成邮件主题"""
         date_str = datetime.now().strftime('%Y-%m-%d')
         if success:
-            return f"✅ Daily arXiv 任务成功 - {date_str}"
+            return self.text(f"✅ Daily arXiv 任务成功 - {date_str}", f"✅ Daily arXiv Task Succeeded - {date_str}")
         else:
-            return f"❌ Daily arXiv 任务失败 - {date_str}"
+            return self.text(f"❌ Daily arXiv 任务失败 - {date_str}", f"❌ Daily arXiv Task Failed - {date_str}")
     
     def _generate_text_content(self, success, stats, error_msg, duration):
         """生成纯文本内容"""
@@ -102,30 +110,33 @@ class EmailNotifier:
         
         content = []
         content.append("=" * 60)
-        content.append("Daily arXiv 任务执行报告")
+        content.append(self.text("Daily arXiv 任务执行报告", "Daily arXiv Task Report"))
         content.append("=" * 60)
-        content.append(f"执行时间: {date_str}")
-        content.append(f"执行结果: {'✅ 成功' if success else '❌ 失败'}")
-        content.append(f"执行耗时: {duration:.2f} 秒")
+        content.append(self.text(f"执行时间: {date_str}", f"Execution time: {date_str}"))
+        content.append(self.text(
+            f"执行结果: {'✅ 成功' if success else '❌ 失败'}",
+            f"Result: {'✅ Success' if success else '❌ Failed'}"
+        ))
+        content.append(self.text(f"执行耗时: {duration:.2f} 秒", f"Duration: {duration:.2f} seconds"))
         content.append("")
         
         if success and stats:
-            content.append("统计信息:")
+            content.append(self.text("统计信息:", "Statistics:"))
             content.append("-" * 60)
-            content.append(f"  论文数量: {stats.get('papers_count', 0)}")
-            content.append(f"  总结数量: {stats.get('summaries_count', 0)}")
-            content.append(f"  研究类别: {stats.get('categories_count', 0)}")
-            content.append(f"  关键词数: {stats.get('keywords_count', 0)}")
+            content.append(self.text(f"  论文数量: {stats.get('papers_count', 0)}", f"  Papers: {stats.get('papers_count', 0)}"))
+            content.append(self.text(f"  总结数量: {stats.get('summaries_count', 0)}", f"  Summaries: {stats.get('summaries_count', 0)}"))
+            content.append(self.text(f"  研究类别: {stats.get('categories_count', 0)}", f"  Categories: {stats.get('categories_count', 0)}"))
+            content.append(self.text(f"  关键词数: {stats.get('keywords_count', 0)}", f"  Keywords: {stats.get('keywords_count', 0)}"))
             content.append("")
         
         if not success and error_msg:
-            content.append("错误信息:")
+            content.append(self.text("错误信息:", "Error details:"))
             content.append("-" * 60)
             content.append(error_msg)
             content.append("")
         
         content.append("=" * 60)
-        content.append("访问 Web 界面: http://localhost:5000")
+        content.append(self.text("访问 Web 界面: http://localhost:5000", "Open Web UI: http://localhost:5000"))
         content.append("=" * 60)
         
         return '\n'.join(content)

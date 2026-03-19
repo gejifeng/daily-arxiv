@@ -6,6 +6,7 @@ LLM 客户端工厂
 import logging
 from typing import Dict, Any
 
+from src.utils import pick_text
 from .base_llm_client import BaseLLMClient
 from .openai_client import OpenAIClient
 from .gemini_client import GeminiClient
@@ -43,25 +44,29 @@ class LLMClientFactory:
         
         llm_config = config.get('llm', {})
         provider = llm_config.get('provider', 'openai').lower()
+        text = lambda zh, en: pick_text(config, zh, en)
         
         if provider not in cls.PROVIDERS:
             raise ValueError(
-                f"不支持的 LLM 提供商: {provider}\n"
-                f"支持的提供商: {', '.join(cls.PROVIDERS.keys())}"
+                text(
+                    f"不支持的 LLM 提供商: {provider}\n支持的提供商: {', '.join(cls.PROVIDERS.keys())}",
+                    f"Unsupported LLM provider: {provider}\nSupported providers: {', '.join(cls.PROVIDERS.keys())}"
+                )
             )
         
-        # 获取特定提供商的配置
-        provider_config = llm_config.get(provider, {})
+        # 获取特定提供商的配置 / Get provider-specific config
+        provider_config = dict(llm_config.get(provider, {}))
+        provider_config['_language'] = config.get('app', {}).get('language', 'zh')
         
-        logger.info(f"创建 LLM 客户端: {provider}")
+        logger.info(text(f"创建 LLM 客户端: {provider}", f"Creating LLM client: {provider}"))
         
         try:
             client_class = cls.PROVIDERS[provider]
             client = client_class(provider_config)
-            logger.info(f"✅ {provider.upper()} 客户端创建成功")
+            logger.info(text(f"✅ {provider.upper()} 客户端创建成功", f"✅ {provider.upper()} client created successfully"))
             return client
         except Exception as e:
-            logger.error(f"❌ 创建 {provider} 客户端失败: {str(e)}")
+            logger.error(text(f"❌ 创建 {provider} 客户端失败: {str(e)}", f"❌ Failed to create {provider} client: {str(e)}"))
             raise
     
     @classmethod

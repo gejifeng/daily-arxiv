@@ -90,6 +90,11 @@ FLASK_PORT=8080 python src/web/app.py
 - LLM 生成的研究建议
 - 适合研究人员参考
 
+#### 分析总结
+
+- 对整体分析结果的简洁总结
+- 作为趋势分析页面的最后一个模块展示
+
 ### 3. 论文列表标签
 
 #### 筛选和搜索
@@ -166,8 +171,9 @@ FLASK_PORT=8080 python src/web/app.py
     {"id": 1, "words": ["model", "training"], "score": 0.65}
   ],
   "llm_analysis": {
-    "research_hotspots": "<h2>研究热点</h2><p>...</p>",
-    "technical_trends": "<h2>技术趋势</h2><p>...</p>",
+    "analysis_summary": "<h2>分析总结</h2><p>...</p>",
+    "hotspots": "<h2>研究热点</h2><p>...</p>",
+    "trends": "<h2>技术趋势</h2><p>...</p>",
     "future_directions": "<h2>未来方向</h2><p>...</p>",
     "research_ideas": "<h2>研究思路</h2><p>...</p>"
   },

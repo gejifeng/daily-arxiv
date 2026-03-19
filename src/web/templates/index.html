@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="{{ html_lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,10 +30,10 @@
                     <button class="btn-icon" id="github-link" title="GitHub" onclick="window.open('https://github.com', '_blank')">
                         <i class="fab fa-github"></i>
                     </button>
-                    <button class="btn-icon" id="settings-btn" title="设置">
+                    <button class="btn-icon" id="settings-btn" title="{{ '设置' if language == 'zh' else 'Settings' }}">
                         <i class="fas fa-cog"></i>
                     </button>
-                    <button class="btn-icon" id="theme-toggle" title="切换主题">
+                    <button class="btn-icon" id="theme-toggle" title="{{ '切换主题' if language == 'zh' else 'Toggle Theme' }}">
                         <i class="fas fa-moon"></i>
                     </button>
                 </div>
@@ -46,7 +46,7 @@
         <!-- 侧边栏 -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h3>导航</h3>
+                <h3>{{ '导航' if language == 'zh' else 'Navigation' }}</h3>
                 <button class="btn-icon sidebar-toggle" id="sidebar-toggle-btn">
                     <i class="fas fa-times"></i>
                 </button>
@@ -55,19 +55,19 @@
             <nav class="sidebar-nav">
                 <a href="#overview" class="nav-item active" data-section="overview">
                     <i class="fas fa-home"></i>
-                    <span>概览</span>
+                    <span>{{ '概览' if language == 'zh' else 'Overview' }}</span>
                 </a>
                 <a href="#papers" class="nav-item" data-section="papers">
                     <i class="fas fa-file-alt"></i>
-                    <span>论文列表</span>
+                    <span>{{ '论文列表' if language == 'zh' else 'Papers' }}</span>
                 </a>
                 <a href="#analysis" class="nav-item" data-section="analysis">
                     <i class="fas fa-chart-line"></i>
-                    <span>趋势分析</span>
+                    <span>{{ '趋势分析' if language == 'zh' else 'Analysis' }}</span>
                 </a>
                 <a href="#statistics" class="nav-item" data-section="statistics">
                     <i class="fas fa-chart-bar"></i>
-                    <span>统计数据</span>
+                    <span>{{ '统计数据' if language == 'zh' else 'Statistics' }}</span>
                 </a>
             </nav>
 
@@ -89,7 +89,7 @@
 
             <!-- 类别筛选 -->
             <div class="category-filter">
-                <h4>研究类别</h4>
+                <h4>{{ '研究类别' if language == 'zh' else 'Research Categories' }}</h4>
                 <div class="category-list" id="category-list">
                     <div class="loading-small">
                         <div class="spinner-small"></div>
@@ -115,7 +115,7 @@
                         </div>
                         <div class="stat-info">
                             <div class="stat-value" id="total-papers">-</div>
-                            <div class="stat-label">今日论文</div>
+                            <div class="stat-label">{{ '今日论文' if language == 'zh' else 'Papers Today' }}</div>
                         </div>
                     </div>
                     <div class="stat-card gradient-blue">
@@ -124,7 +124,7 @@
                         </div>
                         <div class="stat-info">
                             <div class="stat-value" id="total-summaries">-</div>
-                            <div class="stat-label">已分析</div>
+                            <div class="stat-label">{{ '已分析' if language == 'zh' else 'Analyzed' }}</div>
                         </div>
                     </div>
                     <div class="stat-card gradient-green">
@@ -133,7 +133,7 @@
                         </div>
                         <div class="stat-info">
                             <div class="stat-value" id="total-categories">-</div>
-                            <div class="stat-label">研究方向</div>
+                            <div class="stat-label">{{ '研究方向' if language == 'zh' else 'Research Areas' }}</div>
                         </div>
                     </div>
                     <div class="stat-card gradient-orange">
@@ -142,7 +142,7 @@
                         </div>
                         <div class="stat-info">
                             <div class="stat-value" id="hot-topics">-</div>
-                            <div class="stat-label">热点话题</div>
+                            <div class="stat-label">{{ '热点话题' if language == 'zh' else 'Hot Topics' }}</div>
                         </div>
                     </div>
                 </div>
@@ -152,17 +152,17 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-cloud"></i>
-                            <h2>研究热点词云</h2>
+                            <h2>{{ '研究热点词云' if language == 'zh' else 'Research Word Cloud' }}</h2>
                         </div>
                         <div class="header-right">
-                            <span class="update-time" id="wordcloud-update">更新于 <span id="last-update-time">-</span></span>
+                            <span class="update-time" id="wordcloud-update">{{ '更新于' if language == 'zh' else 'Updated at' }} <span id="last-update-time">-</span></span>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="wordcloud-container" id="wordcloud-container">
                             <div class="loading">
                                 <div class="spinner"></div>
-                                <p>加载中...</p>
+                                <p>{{ '加载中...' if language == 'zh' else 'Loading...' }}</p>
                             </div>
                         </div>
                     </div>
@@ -173,10 +173,10 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-star"></i>
-                            <h2>今日热门论文</h2>
+                            <h2>{{ '今日热门论文' if language == 'zh' else 'Featured Papers' }}</h2>
                         </div>
                         <div class="header-right">
-                            <a href="#papers" class="btn-link" data-section="papers">查看全部 <i class="fas fa-arrow-right"></i></a>
+                            <a href="#papers" class="btn-link" data-section="papers">{{ '查看全部' if language == 'zh' else 'View all' }} <i class="fas fa-arrow-right"></i></a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -192,35 +192,35 @@
             <!-- 论文列表部分 -->
             <section id="papers-section" class="content-section">
                 <div class="section-header">
-                    <h1>论文列表</h1>
+                    <h1>{{ '论文列表' if language == 'zh' else 'Papers' }}</h1>
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="search-input" placeholder="搜索论文标题、作者或关键词...">
+                        <input type="text" id="search-input" placeholder="{{ '搜索论文标题、作者或关键词...' if language == 'zh' else 'Search title, authors, or keywords...' }}">
                     </div>
                 </div>
 
                 <!-- 论文过滤和排序 -->
                 <div class="filter-bar">
                     <div class="filter-group">
-                        <label>类别:</label>
+                        <label>{{ '类别' if language == 'zh' else 'Category' }}:</label>
                         <select id="paper-category-filter" class="filter-select">
-                            <option value="">全部类别</option>
+                            <option value="">{{ '全部类别' if language == 'zh' else 'All categories' }}</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>排序:</label>
+                        <label>{{ '排序' if language == 'zh' else 'Sort' }}:</label>
                         <select id="paper-sort" class="filter-select">
-                            <option value="date">按日期</option>
-                            <option value="title">按标题</option>
-                            <option value="citations">按引用</option>
+                            <option value="date">{{ '按日期' if language == 'zh' else 'By date' }}</option>
+                            <option value="title">{{ '按标题' if language == 'zh' else 'By title' }}</option>
+                            <option value="citations">{{ '按引用' if language == 'zh' else 'By citations' }}</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>显示:</label>
+                        <label>{{ '显示' if language == 'zh' else 'Show' }}:</label>
                         <select id="papers-per-page" class="filter-select">
-                            <option value="10">10 篇/页</option>
-                            <option value="20" selected>20 篇/页</option>
-                            <option value="50">50 篇/页</option>
+                            <option value="10">{{ '10 篇/页' if language == 'zh' else '10 / page' }}</option>
+                            <option value="20" selected>{{ '20 篇/页' if language == 'zh' else '20 / page' }}</option>
+                            <option value="50">{{ '50 篇/页' if language == 'zh' else '50 / page' }}</option>
                         </select>
                     </div>
                 </div>
@@ -229,7 +229,7 @@
                 <div id="papers-list" class="papers-list">
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p>加载论文中...</p>
+                        <p>{{ '加载论文中...' if language == 'zh' else 'Loading papers...' }}</p>
                     </div>
                 </div>
 
@@ -242,8 +242,8 @@
             <!-- 趋势分析部分 -->
             <section id="analysis-section" class="content-section">
                 <div class="section-header">
-                    <h1>趋势分析</h1>
-                    <p class="section-desc">基于 AI 的深度研究趋势分析</p>
+                    <h1>{{ '趋势分析' if language == 'zh' else 'Trend Analysis' }}</h1>
+                    <p class="section-desc">{{ '基于 AI 的深度研究趋势分析' if language == 'zh' else 'In-depth AI-powered research trend analysis' }}</p>
                 </div>
 
                 <!-- 研究热点 -->
@@ -251,7 +251,7 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-fire"></i>
-                            <h2>当前研究热点</h2>
+                            <h2>{{ '当前研究热点' if language == 'zh' else 'Current Research Hotspots' }}</h2>
                         </div>
                     </div>
                     <div class="card-body">
@@ -268,7 +268,7 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-arrow-trend-up"></i>
-                            <h2>技术趋势与演进</h2>
+                            <h2>{{ '技术趋势与演进' if language == 'zh' else 'Technical Trends' }}</h2>
                         </div>
                     </div>
                     <div class="card-body">
@@ -285,7 +285,7 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-crystal-ball"></i>
-                            <h2>未来发展方向</h2>
+                            <h2>{{ '未来发展方向' if language == 'zh' else 'Future Directions' }}</h2>
                         </div>
                     </div>
                     <div class="card-body">
@@ -302,11 +302,28 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-lightbulb"></i>
-                            <h2>创新研究想法</h2>
+                            <h2>{{ '创新研究想法' if language == 'zh' else 'Research Ideas' }}</h2>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="analysis-content" id="ideas-content">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分析总结 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <i class="fas fa-clipboard-check"></i>
+                            <h2>{{ '分析总结' if language == 'zh' else 'Analysis Summary' }}</h2>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="analysis-content" id="summary-content">
                             <div class="loading">
                                 <div class="spinner"></div>
                             </div>
@@ -318,15 +335,15 @@
             <!-- 统计数据部分 -->
             <section id="statistics-section" class="content-section">
                 <div class="section-header">
-                    <h1>统计数据</h1>
-                    <p class="section-desc">论文数据可视化分析</p>
+                    <h1>{{ '统计数据' if language == 'zh' else 'Statistics' }}</h1>
+                    <p class="section-desc">{{ '论文数据可视化分析' if language == 'zh' else 'Paper data visualization' }}</p>
                 </div>
 
                 <div class="content-card">
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-chart-bar"></i>
-                            <h2>类别分布</h2>
+                            <h2>{{ '类别分布' if language == 'zh' else 'Category Distribution' }}</h2>
                         </div>
                     </div>
                     <div class="card-body">
@@ -338,7 +355,7 @@
                     <div class="card-header">
                         <div class="header-left">
                             <i class="fas fa-chart-line"></i>
-                            <h2>论文趋势</h2>
+                            <h2>{{ '论文趋势' if language == 'zh' else 'Paper Trends' }}</h2>
                         </div>
                     </div>
                     <div class="card-body">
@@ -357,7 +374,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>© 2025 Daily arXiv | 内容由AI生成，请仔细甄别 | Powered by Flask & AI</p>
+            <p>{% if language == 'zh' %}© 2025 Daily arXiv | 内容由AI生成，请仔细甄别 | Powered by Flask & AI{% else %}© 2025 Daily arXiv | AI-generated content, please verify carefully | Powered by Flask & AI{% endif %}</p>
         </div>
     </footer>
 
@@ -368,6 +385,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     
     <!-- 自定义 JS -->
+    <script>
+        window.APP_LANGUAGE = "{{ language }}";
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

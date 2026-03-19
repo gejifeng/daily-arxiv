@@ -6,7 +6,6 @@ Flask Web 应用
 import os
 import sys
 import json
-from datetime import datetime
 from pathlib import Path
 
 # 添加项目根目录到 Python 路径
@@ -17,7 +16,7 @@ from flask import Flask, render_template, jsonify, request, send_from_directory
 # from flask_cors import CORS  # 暂时注释，本地开发不需要
 import markdown
 
-from src.utils import load_config, load_json, get_date_string
+from src.utils import load_config, load_json, get_language
 
 
 # 创建 Flask 应用
@@ -33,9 +32,43 @@ app = Flask(
 # 加载配置
 config = load_config()
 web_config = config.get('web', {})
+language = get_language(config)
 
-app.config['TITLE'] = web_config.get('title', 'Daily arXiv - AI Research Tracker')
-app.config['DESCRIPTION'] = web_config.get('description', '每日追踪最新的 AI 研究论文')
+WEB_I18N = {
+    'zh': {
+        'html_lang': 'zh-CN',
+        'title_default': 'Daily arXiv - AI Research Tracker',
+        'description_default': '每日追踪最新的 AI 研究论文',
+        'error_no_analysis': '没有找到分析数据',
+        'error_no_papers': '没有找到论文数据',
+        'error_no_summaries': '没有找到总结数据',
+        'error_paper_not_found': '论文不存在',
+        'web_start': 'Daily arXiv Web 服务启动',
+        'access_url': '访问地址',
+        'api_doc': 'API 文档',
+        'stop_hint': '按 Ctrl+C 停止服务',
+    },
+    'en': {
+        'html_lang': 'en-US',
+        'title_default': 'Daily arXiv - AI Research Tracker',
+        'description_default': 'Track the latest AI research papers daily',
+        'error_no_analysis': 'Analysis data not found',
+        'error_no_papers': 'Paper data not found',
+        'error_no_summaries': 'Summary data not found',
+        'error_paper_not_found': 'Paper not found',
+        'web_start': 'Daily arXiv Web Service Started',
+        'access_url': 'Access URL',
+        'api_doc': 'API docs',
+        'stop_hint': 'Press Ctrl+C to stop the service',
+    }
+}
+
+
+def t(key: str) -> str:
+    return WEB_I18N[language].get(key, key)
+
+app.config['TITLE'] = web_config.get('title', t('title_default'))
+app.config['DESCRIPTION'] = web_config.get('description', t('description_default'))
 
 
 @app.route('/')
@@ -43,7 +76,9 @@ def index():
     """主页"""
     return render_template('index.html',
                          title=app.config['TITLE'],
-                         description=app.config['DESCRIPTION'])
+                         description=app.config['DESCRIPTION'],
+                         language=language,
+                         html_lang=t('html_lang'))
 
 
 @app.route('/api/analysis')
@@ -54,11 +89,11 @@ def get_analysis():
         analysis_data = load_json('data/analysis/latest.json')
         
         if not analysis_data:
-            return jsonify({'error': '没有找到分析数据'}), 404
+            return jsonify({'error': t('error_no_analysis')}), 404
         
         # 处理 LLM 分析的 Markdown 内容
         llm_analysis = analysis_data.get('llm_analysis', {})
-        for key in ['hotspots', 'trends', 'future_directions', 'research_ideas']:
+        for key in ['analysis_summary', 'hotspots', 'trends', 'future_directions', 'research_ideas']:
             if key in llm_analysis and llm_analysis[key]:
                 # 将 Markdown 转换为 HTML
                 llm_analysis[f'{key}_html'] = markdown.markdown(
@@ -85,7 +120,7 @@ def get_papers():
         papers_data = load_json('data/papers/latest.json')
         
         if not papers_data:
-            return jsonify({'error': '没有找到论文数据'}), 404
+            return jsonify({'error': t('error_no_papers')}), 404
         
         papers = papers_data.get('papers', [])
         
@@ -128,7 +163,7 @@ def get_paper_detail(paper_id):
                 break
         
         if not paper:
-            return jsonify({'error': '论文不存在'}), 404
+            return jsonify({'error': t('error_paper_not_found')}), 404
         
         # 加载总结数据
         summaries_data = load_json('data/summaries/latest.json')
@@ -153,7 +188,7 @@ def get_summaries():
         summaries_data = load_json('data/summaries/latest.json')
         
         if not summaries_data:
-            return jsonify({'error': '没有找到总结数据'}), 404
+            return jsonify({'error': t('error_no_summaries')}), 404
         
         return jsonify(summaries_data)
     
@@ -168,7 +203,7 @@ def get_categories():
         papers_data = load_json('data/papers/latest.json')
         
         if not papers_data:
-            return jsonify({'error': '没有找到论文数据'}), 404
+            return jsonify({'error': t('error_no_papers')}), 404
         
         papers = papers_data.get('papers', [])
         
@@ -227,7 +262,7 @@ def get_wordcloud():
         analysis_data = load_json('data/analysis/latest.json')
         
         if not analysis_data:
-            return jsonify({'error': '没有找到分析数据'}), 404
+            return jsonify({'error': t('error_no_analysis')}), 404
         
         wordcloud_path = analysis_data.get('wordcloud_path', '')
         
@@ -266,12 +301,12 @@ def main():
     debug = web_config.get('debug', True)
     
     print("\n" + "=" * 60)
-    print(f"🌐 Daily arXiv Web 服务启动")
+    print(f"🌐 {t('web_start')}")
     print("=" * 60)
-    print(f"访问地址: http://localhost:{port}")
-    print(f"API 文档: http://localhost:{port}/api/stats")
+    print(f"{t('access_url')}: http://localhost:{port}")
+    print(f"{t('api_doc')}: http://localhost:{port}/api/stats")
     print("=" * 60)
-    print("按 Ctrl+C 停止服务\n")
+    print(f"{t('stop_hint')}\n")
     
     app.run(host=host, port=port, debug=debug)
 

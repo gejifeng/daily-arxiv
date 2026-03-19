@@ -16,6 +16,17 @@
 
 ## ⚙️ 配置说明
 
+### 0. 输出语言（完整英文支持）
+
+在 `config/config.yaml` 中设置：
+
+```yaml
+app:
+  language: "zh"  # 可选: zh, en
+```
+
+当设置为 `en` 时，LLM 相关提示词、日志与分析报告将统一输出英文（并与 Web 界面语言配置保持一致）。
+
 ### 1. 选择 LLM 提供商
 
 在 `config/config.yaml` 中设置：

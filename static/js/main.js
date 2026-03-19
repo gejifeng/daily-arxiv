@@ -2,6 +2,52 @@
  * Daily arXiv - Modern Frontend JavaScript
  */
 
+const LANG = window.APP_LANGUAGE === 'en' ? 'en' : 'zh';
+const I18N = {
+    zh: {
+        monthNames: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        weekDays: ['日', '一', '二', '三', '四', '五', '六'],
+        loading: '加载中...',
+        loadingPapers: '加载论文中...',
+        loadAnalysisFailed: '加载分析失败',
+        noWordcloud: '暂无词云数据',
+        wordcloudLoadFailed: '词云加载失败',
+        noPaperData: '暂无论文数据',
+        unknown: 'Unknown',
+        authorLabel: '作者',
+        noAbstract: '暂无摘要',
+        viewPdf: '查看PDF',
+        viewDetail: '查看详情',
+        noPapers: '暂无论文',
+        noCategories: '暂无类别',
+        allCategories: '全部类别',
+        noData: '暂无数据'
+    },
+    en: {
+        monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        loading: 'Loading...',
+        loadingPapers: 'Loading papers...',
+        loadAnalysisFailed: 'Failed to load analysis',
+        noWordcloud: 'No word cloud data',
+        wordcloudLoadFailed: 'Failed to load word cloud',
+        noPaperData: 'No paper data',
+        unknown: 'Unknown',
+        authorLabel: 'Authors',
+        noAbstract: 'No abstract',
+        viewPdf: 'View PDF',
+        viewDetail: 'View details',
+        noPapers: 'No papers available',
+        noCategories: 'No categories',
+        allCategories: 'All categories',
+        noData: 'No data'
+    }
+};
+
+function t(key) {
+    return I18N[LANG][key] || key;
+}
+
 // ===================  全局状态 ==================== //
 const state = {
     currentSection: 'overview',
@@ -145,8 +191,10 @@ function renderCalendar(date) {
     const month = date.getMonth();
     
     // 更新标题
-    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-    document.getElementById('current-month').textContent = `${year}年${monthNames[month]}`;
+    const monthNames = I18N[LANG].monthNames;
+    document.getElementById('current-month').textContent = LANG === 'en'
+        ? `${monthNames[month]} ${year}`
+        : `${year}年${monthNames[month]}`;
     
     // 获取月份第一天和最后一天
     const firstDay = new Date(year, month, 1);
@@ -159,7 +207,7 @@ function renderCalendar(date) {
     calendarBody.innerHTML = '';
     
     // 星期标题
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekDays = I18N[LANG].weekDays;
     weekDays.forEach(day => {
         const dayHeader = document.createElement('div');
         dayHeader.className = 'calendar-day-header';
@@ -257,6 +305,7 @@ async function loadAnalysis() {
         // 加载LLM分析
         const llmAnalysis = analysis.llm_analysis || {};
         
+        renderAnalysisContent('summary-content', llmAnalysis.analysis_summary_html || llmAnalysis.analysis_summary);
         renderAnalysisContent('hotspots-content', llmAnalysis.hotspots_html || llmAnalysis.hotspots);
         renderAnalysisContent('trends-content', llmAnalysis.trends_html || llmAnalysis.trends);
         renderAnalysisContent('future-content', llmAnalysis.future_directions_html || llmAnalysis.future_directions);
@@ -264,7 +313,7 @@ async function loadAnalysis() {
         
     } catch (error) {
         console.error('加载分析数据失败:', error);
-        showError('hotspots-content', '加载分析失败');
+        showError('hotspots-content', t('loadAnalysisFailed'));
     }
 }
 
@@ -277,14 +326,14 @@ async function loadWordcloud() {
         const container = document.getElementById('wordcloud-container');
         
         if (data.url) {
-            container.innerHTML = `<img src="${data.url}" alt="词云图" class="fade-in">`;
+            container.innerHTML = `<img src="${data.url}" alt="Wordcloud" class="fade-in">`;
         } else {
-            container.innerHTML = '<p style="color: var(--text-secondary);">暂无词云数据</p>';
+            container.innerHTML = `<p style="color: var(--text-secondary);">${t('noWordcloud')}</p>`;
         }
     } catch (error) {
         console.error('加载词云失败:', error);
         const container = document.getElementById('wordcloud-container');
-        container.innerHTML = '<p style="color: var(--text-secondary);">词云加载失败</p>';
+        container.innerHTML = `<p style="color: var(--text-secondary);">${t('wordcloudLoadFailed')}</p>`;
     }
 }
 
@@ -316,7 +365,7 @@ async function loadPapers(page = 1) {
         
     } catch (error) {
         console.error('加载论文失败:', error);
-        showError('papers-list', '加载论文失败');
+        showError('papers-list', LANG === 'en' ? 'Failed to load papers' : '加载论文失败');
     }
 }
 
@@ -344,7 +393,7 @@ function renderPapers(papers) {
     const container = document.getElementById('papers-list');
     
     if (!papers || papers.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 3rem;">暂无论文数据</p>';
+        container.innerHTML = `<p style="text-align: center; color: var(--text-secondary); padding: 3rem;">${t('noPaperData')}</p>`;
         return;
     }
     
@@ -362,16 +411,16 @@ function renderPapers(papers) {
                         </span>
                         <span class="paper-meta-item">
                             <i class="fas fa-user"></i>
-                            ${paper.authors ? paper.authors.slice(0, 3).join(', ') : 'Unknown'}
+                            ${paper.authors ? paper.authors.slice(0, 3).join(', ') : t('unknown')}
                             ${paper.authors && paper.authors.length > 3 ? ' et al.' : ''}
                         </span>
                     </div>
                 </div>
             </div>
             <p class="paper-authors">
-                <strong>作者:</strong> ${paper.authors ? paper.authors.join(', ') : 'Unknown'}
+                <strong>${t('authorLabel')}:</strong> ${paper.authors ? paper.authors.join(', ') : t('unknown')}
             </p>
-            <p class="paper-abstract">${escapeHtml(paper.abstract || '暂无摘要')}</p>
+            <p class="paper-abstract">${escapeHtml(paper.abstract || t('noAbstract'))}</p>
             <div class="paper-categories">
                 ${(paper.categories || []).map(cat => 
                     `<span class="category-badge">${escapeHtml(cat)}</span>`
@@ -380,7 +429,7 @@ function renderPapers(papers) {
             <div class="paper-actions">
                 <a href="${paper.pdf_url || paper.entry_url}" target="_blank" class="btn-paper btn-primary">
                     <i class="fas fa-file-pdf"></i>
-                    查看PDF
+                    ${t('viewPdf')}
                 </a>
                 <a href="${paper.entry_url}" target="_blank" class="btn-paper btn-secondary">
                     <i class="fas fa-external-link-alt"></i>
@@ -395,7 +444,7 @@ function renderFeaturedPapers(papers) {
     const container = document.getElementById('featured-papers');
     
     if (!papers || papers.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">暂无论文</p>';
+        container.innerHTML = `<p style="text-align: center; color: var(--text-secondary);">${t('noPapers')}</p>`;
         return;
     }
     
@@ -410,7 +459,7 @@ function renderFeaturedPapers(papers) {
             <div class="paper-actions" style="margin-top: 0.75rem;">
                 <a href="${paper.entry_url}" target="_blank" class="btn-paper btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
                     <i class="fas fa-arrow-right"></i>
-                    查看详情
+                    ${t('viewDetail')}
                 </a>
             </div>
         </div>
@@ -421,7 +470,7 @@ function renderCategoryList(categories) {
     const container = document.getElementById('category-list');
     
     if (!categories || categories.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem;">暂无类别</p>';
+        container.innerHTML = `<p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem;">${t('noCategories')}</p>`;
         return;
     }
     
@@ -446,7 +495,7 @@ function renderCategoryFilter(categories) {
     const select = document.getElementById('paper-category-filter');
     if (!select) return;
     
-    select.innerHTML = '<option value="">全部类别</option>' +
+    select.innerHTML = `<option value="">${t('allCategories')}</option>` +
         categories.map(cat => 
             `<option value="${escapeHtml(cat.name)}">${escapeHtml(cat.name)} (${cat.count})</option>`
         ).join('');
@@ -515,7 +564,7 @@ function renderAnalysisContent(elementId, content) {
     if (content) {
         element.innerHTML = content;
     } else {
-        element.innerHTML = '<p style="color: var(--text-secondary);">暂无数据</p>';
+        element.innerHTML = `<p style="color: var(--text-secondary);">${t('noData')}</p>`;
     }
 }
 
@@ -662,7 +711,7 @@ function showLoading(elementId) {
         element.innerHTML = `
             <div class="loading">
                 <div class="spinner"></div>
-                <p>加载中...</p>
+                <p>${t('loading')}</p>
             </div>
         `;
     }

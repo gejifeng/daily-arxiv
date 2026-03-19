@@ -26,13 +26,18 @@
   - TF-IDF 关键词提取
   - LDA 主题建模
   - 词云可视化
-  - LLM 深度分析（研究热点、技术趋势、未来方向）
+  - LLM 深度分析（研究热点、技术趋势、未来方向、创新研究想法、分析总结）
 
 - 🌐 **Web 界面**: 现代化响应式 Web 界面
   - Bootstrap 5 设计
   - 实时数据展示
   - 论文详情查看
   - 分页和筛选
+
+- 🌍 **完整英文支持**: 提供完整英文使用体验
+  - 界面文案支持英文显示
+  - 日志、提示词与分析报告支持英文输出
+  - 中英文文档保持同步
 
 - ⏰ **定时调度**: 支持多种调度方式
   - APScheduler 调度器（推荐）
@@ -120,6 +125,10 @@ EMAIL_PASSWORD=your-app-password
 编辑 `config/config.yaml`：
 
 ```yaml
+# 应用语言（部署级）：zh 或 en
+app:
+  language: "zh"
+
 # 研究领域
 arxiv:
   categories:
@@ -147,19 +156,19 @@ scheduler:
 
 ```bash
 # 测试论文抓取
-python test_fetcher.py
+python test/test_fetcher.py
 
 # 测试 LLM 总结
-python test_summarizer.py
+python test/test_summarizer.py
 
 # 测试趋势分析
-python test_analyzer.py
+python test/test_analyzer.py
 
 # 测试 Web 服务
-python test_web.py
+python test/test_web.py
 
 # 测试调度器
-python test_scheduler.py
+python test/test_scheduler.py
 ```
 
 ### 7. 运行完整流程
@@ -186,6 +195,33 @@ python src/web/app.py
 
 # 或直接运行
 python scheduler.py
+```
+
+`deploy/start.sh` 现在支持：
+- 启动时询问是否立即初始化环境（可跳过）。
+- Conda/venv 环境初始化。
+- 自动扫描已有环境，并让你选择“使用已有”或“创建新的”。
+- 菜单中直接执行 systemd 一键部署（选项 8）。
+
+### 10. 以 systemd 服务方式部署（Linux）
+
+```bash
+# 一键部署将会：
+# 1) 选择 Conda 或 venv
+# 2) 选择使用已有环境或创建新环境
+# 3) 自动安装依赖
+# 4) 自动生成本机 service
+# 5) 启用并启动服务
+bash deploy/deploy_services.sh
+```
+
+部署脚本内置常见异常检查（例如 Web 端口被占用、系统命令缺失、Python 环境不可用），出现问题会明确报错并退出。
+
+### 11. 卸载 systemd 服务（Linux）
+
+```bash
+# 停止、禁用、删除服务文件并重载 systemd
+bash deploy/uninstall_services.sh
 ```
 
 访问 http://localhost:5000 查看结果。
@@ -226,8 +262,10 @@ daily-arxiv/
 │   └── analysis/             # 分析结果和词云图
 ├── logs/                     # 日志文件
 ├── deploy/                   # 部署脚本
-│   ├── start.sh             # 启动脚本
-│   ├── daily-arxiv.service  # Systemd 服务
+│   ├── start.sh             # 本地交互式启动脚本
+│   ├── deploy_services.sh   # Linux 一键部署脚本
+│   ├── daily-arxiv-scheduler.service # 调度器 systemd 模板
+│   ├── daily-arxiv-web.service       # Web systemd 模板
 │   └── crontab.example      # Cron 示例
 ├── docs/                     # 文档
 │   ├── arxiv_fetcher_guide.md
@@ -273,7 +311,9 @@ daily-arxiv/
   - 支持 OpenAI, Gemini, Claude, DeepSeek, vLLM
 - [x] 趋势分析功能 ✅
   - 关键词提取、主题建模、词云生成
-  - LLM 深度分析（热点、趋势、创新点）
+  - LLM 深度分析（研究热点、技术趋势、未来方向、创新研究想法、分析总结）
+- [x] 完整英文支持 ✅
+  - 界面文案、日志、提示词、分析报告与文档均已支持英文
 - [x] Web 界面开发
 - [x] 定时调度功能
 - [x] 测试和优化
@@ -315,6 +355,7 @@ data/
 
 ## 📖 文档
 
+- 已完成中英文文档与界面说明同步，英文支持完整可用。
 - [论文爬取模块指南](docs/arxiv_fetcher_guide.md)
 - [LLM 总结模块指南](docs/llm_guide.md)
 - [配置说明](docs/config_guide.md)
